@@ -1,0 +1,15 @@
+{
+  "name": "logan-skills",
+  "description": "Log analysis skills built around LogAn (unofficial)",
+  "owner": {
+    "name": "biparasite",
+    "url": "https://github.com/biparasite"
+  },
+  "plugins": [
+    {
+      "name": "logan-skills",
+      "source": "./",
+      "description": "Analyze logs with LogAn from Docker: summary, input coverage, drill-down, root cause, custom tags"
+    }
+  ]
+}
