@@ -99,14 +99,14 @@ extracted"). `results` can be long; summarize `output_dir` with `logan_report.py
 
 The image entrypoint `run.sh` reads environment variables:
 ```bash
-docker run --rm --network none --user "$(id -u):$(id -g)" --group-add 0 \
+docker run --rm --network none --user <uid>:<gid> --group-add 0 \
   -v /abs/logs/:/data/input/:ro -v /abs/new-out/:/data/output/ -v ~/.cache/logan-hf:/tmp/hf_cache \
   -e HF_HUB_OFFLINE=1 -e LOGAN_INPUT_FILES="/data/input/" -e LOGAN_OUTPUT_DIR=/data/output/ \
   -e LOGAN_TIME_RANGE=all-data -e LOGAN_PROCESS_ALL_FILES=true \
   ghcr.io/log-analyzer/logan:latest
 ```
-(drop `--network none` and `HF_HUB_OFFLINE` for the one-time model download; rootless podman uses
-`--userns=keep-id` instead of `--group-add 0`).
+(`<uid>:<gid>` are your `id -u` and `id -g`; drop `--network none` and `HF_HUB_OFFLINE` for the one-time model
+download; rootless podman uses `--userns=keep-id` instead of `--group-add 0`).
 
 | Variable | Default | Values |
 |---|---|---|

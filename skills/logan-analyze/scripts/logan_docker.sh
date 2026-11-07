@@ -105,13 +105,13 @@ cmd_check() {
 
 cmd_analyze() {
   need_image
-  local mounts=() args=() n=0 out="" host model_type="" model="" glob_pat="" map=""
+  local mounts=() args=() n=0 out="" host model_type="" model="" glob_expr="" map=""
   while [ $# -gt 0 ]; do
     case "$1" in
       -f|--files)       [ $# -ge 2 ] || die "$1 needs a value"; host="$(abspath "$2")"; shift 2 ;;
       --files=*)        host="$(abspath "${1#*=}")"; shift ;;
-      -g|--glob)        [ $# -ge 2 ] || die "$1 needs a value"; glob_pat="$2"; shift 2; continue ;;
-      --glob=*)         glob_pat="${1#*=}"; shift; continue ;;
+      -g|--glob)        [ $# -ge 2 ] || die "$1 needs a value"; glob_expr="$2"; shift 2; continue ;;
+      --glob=*)         glob_expr="${1#*=}"; shift; continue ;;
       -o|--output-dir)  [ $# -ge 2 ] || die "$1 needs a value"; out="$2"; shift 2; continue ;;
       --output-dir=*)   out="${1#*=}"; shift; continue ;;
       --tag-config)     [ $# -ge 2 ] || die "$1 needs a value"
@@ -136,10 +136,10 @@ cmd_analyze() {
       args=( "${args[@]+"${args[@]}"}" -f "/data/in/$n/$(basename "$host")" )
     fi
   done
-  if [ -n "$glob_pat" ]; then   # expanded on the host: host paths do not exist inside the container
+  if [ -n "$glob_expr" ]; then   # expanded on the host: host paths do not exist inside the container
     local matched=0 g
     local IFS=''
-    for g in $glob_pat; do
+    for g in $glob_expr; do
       [ -e "$g" ] || continue
       matched=1; n=$((n+1)); host="$(abspath "$g")"
       map="$map/data/in/$n	$host	file
@@ -147,9 +147,9 @@ cmd_analyze() {
       mounts=( "${mounts[@]+"${mounts[@]}"}" -v "$host:/data/in/$n/$(basename "$host"):ro$Z" )
       args=( "${args[@]+"${args[@]}"}" -f "/data/in/$n/$(basename "$host")" )
     done
-    [ $matched = 1 ] || die "glob '$glob_pat' matched nothing"
+    [ $matched = 1 ] || die "glob '$glob_expr' matched nothing"
   fi
-  [ $n -gt 0 ] || die "no input: pass -f PATH (repeatable) or -g 'pattern'"
+  [ $n -gt 0 ] || die "no input: give -f PATH (repeatable) or -g 'glob'"
   if [ -n "$model" ]; then
     case "$model" in
       *.py:*) local mf="${model%%:*}" cls="${model##*:}"

@@ -44,12 +44,11 @@ npx skills add biparasite/LogAn_skills
 ## Quick start
 
 ```bash
-w=skills/logan-analyze/scripts/logan_docker.sh
-bash "$w" check                                                      # image, CLI version, run-as user, model cache
-LOGAN_OFFLINE=0 bash "$w" analyze -f sample.log -o /tmp/logan-warmup # one-time model download, non-sensitive file
-bash "$w" analyze -f /var/log/myapp/ --process-all-files -o ./logan-runs/incident-1   # offline by default
-bash "$w" report ./logan-runs/incident-1                             # summary with input coverage
-bash "$w" report ./logan-runs/incident-1 --template 42               # drill down into one template
+bash skills/logan-analyze/scripts/logan_docker.sh check            # image, CLI version, run-as user, model cache
+LOGAN_OFFLINE=0 bash skills/logan-analyze/scripts/logan_docker.sh analyze -f sample.log -o /tmp/logan-warmup   # one-time model download, non-sensitive file
+bash skills/logan-analyze/scripts/logan_docker.sh analyze -f /var/log/myapp/ --process-all-files -o ./logan-runs/incident-1   # offline by default
+bash skills/logan-analyze/scripts/logan_docker.sh report ./logan-runs/incident-1                # summary with input coverage
+bash skills/logan-analyze/scripts/logan_docker.sh report ./logan-runs/incident-1 --template 42  # drill down into one template
 ```
 
 Or ask your agent: *"Analyze the logs in /var/log/myapp with LogAn and tell me what broke around 14:05."*

@@ -59,10 +59,9 @@ Check that LogAn will pick the files up:
 ### Docker or Podman, through the wrapper
 
 ```bash
-wrapper=<skill-dir>/scripts/logan_docker.sh
-bash "$wrapper" check                                   # image, version, run-as user, model cache
-bash "$wrapper" analyze -f /var/log/myapp/ -f /tmp/incident/db.log \
-     --process-all-files -t all-data -o ./logan-runs/incident-$(date +%Y%m%d_%H%M)
+bash <skill-dir>/scripts/logan_docker.sh check                                   # image, version, run-as user, model cache
+bash <skill-dir>/scripts/logan_docker.sh analyze -f /var/log/myapp/ -f /tmp/incident/db.log \
+     --process-all-files -t all-data -o ./logan-runs/incident-1
 ```
 
 - The wrapper mounts host paths (inputs read-only), keeps the model cache in `~/.cache/logan-hf`
@@ -70,7 +69,7 @@ bash "$wrapper" analyze -f /var/log/myapp/ -f /tmp/incident/db.log \
   `-g 'glob'` (expanded on the host, not recursive; pass a directory for recursion), `-t`, `-m`,
   `--model-type`, `--tag-config`, `--process-*`.
 - **Offline by default.** `LOGAN_OFFLINE=1` runs the container with `--network none`. If the model cache is
-  empty, the wrapper stops and asks for a one-time warm-up: `LOGAN_OFFLINE=0 bash "$wrapper" analyze -f
+  empty, the wrapper stops and asks for a one-time warm-up: `LOGAN_OFFLINE=0 bash <skill-dir>/scripts/logan_docker.sh analyze -f
   <non-sensitive sample> -o <new dir>`. Do not run real logs with networking enabled unless the user agrees.
 - **Output** must be a new path. The wrapper creates it with mode 700 (as root: 770, group 0 for the image
   user). Never `chmod a+rwx` output or cache directories.
@@ -107,8 +106,8 @@ bash "$wrapper" analyze -f /var/log/myapp/ -f /tmp/incident/db.log \
 ## Step 3. Summary and coverage
 
 ```bash
-bash "$wrapper" report OUTPUT_DIR                   # markdown
-bash "$wrapper" report OUTPUT_DIR --format json     # stdout is pure JSON
+bash <skill-dir>/scripts/logan_docker.sh report OUTPUT_DIR                   # markdown
+bash <skill-dir>/scripts/logan_docker.sh report OUTPUT_DIR --format json     # stdout is pure JSON
 python3 <skill-dir>/scripts/logan_report.py OUTPUT_DIR   # without Docker: needs pyarrow, e.g. a LogAn venv
 ```
 
@@ -123,9 +122,9 @@ last 10% of the period, rare problem templates, highest-volume problem templates
 
 Drill-down:
 ```bash
-bash "$wrapper" report OUT --template 42                              # entries over time + values of <*>
-bash "$wrapper" report OUT --around "2026-11-07 14:05" --window 10m   # problem entries from all files around a moment
-bash "$wrapper" report OUT --grep "timeout|refused|OOM"               # search templates and examples
+bash <skill-dir>/scripts/logan_docker.sh report OUT --template 42                              # entries over time + values of <*>
+bash <skill-dir>/scripts/logan_docker.sh report OUT --around "2026-11-07 14:05" --window 10m   # problem entries from all files around a moment
+bash <skill-dir>/scripts/logan_docker.sh report OUT --grep "timeout|refused|OOM"               # search templates and examples
 # add --include-info to include information templates
 ```
 
@@ -153,7 +152,7 @@ an adjacent timestamp alone does not establish a root cause.
 
 Offer the interactive Log Explorer (blocking; run it in the background):
 ```bash
-bash "$wrapper" view OUTPUT_DIR 8000   # → http://localhost:8000/log_diagnosis/explorer.html (bound to 127.0.0.1)
+bash <skill-dir>/scripts/logan_docker.sh view OUTPUT_DIR 8000   # → http://localhost:8000/log_diagnosis/explorer.html (bound to 127.0.0.1)
 ```
 `explorer.html` needs HTTP, not `file://`.
 
