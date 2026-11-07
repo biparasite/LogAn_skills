@@ -11,8 +11,8 @@ log analysis itself is the `logan-analyze` skill. Answer in the user's language.
 
 ## Rules
 
-- Ask the user before installing system packages (Rust, a JDK, podman/docker) or pulling images.
-  Packages inside a dedicated venv need no confirmation.
+- Ask the user before installing anything: system packages (Rust, a JDK, podman/docker), container images,
+  or LogAn itself. Installing downloads and runs third-party code.
 - Never install LogAn into the system Python or with `sudo pip`; use a dedicated venv.
 - In agent configs always use the absolute path of the venv binary: agents do not activate venvs.
 - Never make output or cache directories world-writable (`chmod a+rwx`); run the container as your user.
@@ -25,8 +25,8 @@ bash <skill-dir>/../logan-analyze/scripts/logan_docker.sh check   # image, CLI v
 ```
 
 `check_env.sh` reports podman/docker and the LogAn image, Python 3.9–3.12, uv, git, Rust, Java, the
-`logan`/`logan-mcp` binaries, model caches, reachability of the hosts LogAn needs, and MCP registration in
-Claude Code / Codex, then prints a recommendation. If LogAn already works, go to step 4.
+`logan`/`logan-mcp` binaries, model caches and reachability of the hosts LogAn needs, then prints a
+recommendation. It does not read agent configuration files. If LogAn already works, go to step 4.
 
 ## Step 2. Choose an installation
 
@@ -40,10 +40,8 @@ The image has no MCP server (the package is installed without the `[mcp]` extra)
 
 ### A. Container
 
-```bash
-docker pull ghcr.io/log-analyzer/logan:latest        # or: podman pull ...
-docker image inspect ghcr.io/log-analyzer/logan:latest --format '{{.Id}}'   # note the digest you run
-```
+If the image is missing, ask the user before pulling it (`docker pull ghcr.io/log-analyzer/logan:latest`, or
+`podman pull`), and note the image ID you run (`docker image inspect <image> --format '{{.Id}}'`).
 
 Use `logan-analyze/scripts/logan_docker.sh` to run it: it mounts paths, keeps the model cache, runs offline by
 default and runs the container as your user. The model is not part of the image. Warm the cache once with
@@ -66,25 +64,26 @@ Pitfalls:
 
 ### B. Local install (needed for MCP)
 
-Requirements: Python 3.9–3.12 (`numpy~=1.26` does not build on 3.13; 3.11 as in the image is best), `uv`,
-`git`, a Rust toolchain (`drain3` is installed from the Drain3-rs git repository and built with maturin),
-about 2 GB of disk for torch CPU and transformers.
+A local install downloads and builds third-party code, so never run it on your own initiative: show the user
+the plan and get explicit approval first. Follow the "Option 2 - Local" section of the
+[LogAn README](https://github.com/Log-Analyzer/LogAn), preferably at the commit these skills were checked
+against (`70d4975`), with these adjustments the README does not mention:
 
-```bash
-git clone https://github.com/Log-Analyzer/LogAn.git ~/tools/LogAn
-cd ~/tools/LogAn
-uv venv --python 3.11
-source .venv/bin/activate
-# torch is not in requirements.txt, but the transformers classifier needs it:
-uv pip install torch --index-url https://download.pytorch.org/whl/cpu   # Linux; on macOS: uv pip install torch
-uv pip install -e ".[mcp]"
-logan --version && which logan-mcp
-logan analyze -f examples/Linux_2k.log -o /tmp/logan-smoke-$$      # smoke test
-```
+- Use a dedicated venv (for example `~/tools/LogAn/.venv`), never the system Python.
+- Use Python 3.9–3.12: `numpy~=1.26` does not build on 3.13; 3.11, as in the image, is the safest choice.
+- A Rust toolchain is required: `drain3` is installed from the Drain3-rs git repository and built with maturin.
+- `torch` is not in `requirements.txt`, but the transformers classifier needs it: install the CPU build of
+  torch into the same venv.
+- Install the package with the `mcp` extra to get the `logan-mcp` binary.
+- Expect about 2 GB of disk for torch CPU and transformers.
+
+Done when `logan --version` and `which logan-mcp` succeed in that venv and a run on the bundled
+`examples/Linux_2k.log` into a new output directory finishes.
 
 The first local run downloads `cross-encoder/nli-MiniLM2-L6-H768` from huggingface.co into
 `~/.cache/huggingface` and DuckDB-WASM (~10 MB) from cdn.jsdelivr.net into `~/.cache/logan/duckdb-wasm/`;
-afterwards `export HF_HUB_OFFLINE=1` works offline. Update: `git pull && uv pip install -e ".[mcp]"`.
+afterwards `HF_HUB_OFFLINE=1` works offline. To update, repeat the same steps from an updated checkout, again
+with the user's approval.
 
 ## Step 3. Connect the MCP server (option B only)
 
@@ -115,8 +114,9 @@ If the client has a per-server timeout, set at least 15–30 minutes.
 **HTTP transport** (agent on another machine): `logan-mcp --transport streamable-http`. FastMCP listens on
 `127.0.0.1:8000`, endpoint `/mcp`; change the port with `FASTMCP_PORT` (`logan view` also uses 8000).
 
-Restart the agent and check that `analyze_logs` and `extract_templates` are listed. To debug the server:
-`cd ~/tools/LogAn && mcp dev logan/mcp/server.py` (MCP Inspector, needs Node.js).
+Restart the agent and check that `analyze_logs` and `extract_templates` are listed, using the client's own
+MCP listing (for example `claude mcp list`) rather than reading its configuration files. To debug the server,
+the MCP Inspector can be run on `logan/mcp/server.py` from the LogAn checkout (needs Node.js).
 
 ## Step 4. Verify
 
@@ -130,10 +130,10 @@ Restart the agent and check that `analyze_logs` and `extract_templates` are list
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `drain3` build fails, `can't find Rust compiler` | no Rust | install rustup (ask first) or use the container |
-| `numpy` build fails | venv on Python 3.13+ | recreate: `uv venv --python 3.11` |
+| `drain3` build fails, `can't find Rust compiler` | no Rust | install a Rust toolchain (with the user's approval) or use the container |
+| `numpy` build fails | venv on Python 3.13+ | recreate the venv with Python 3.11 |
 | `pyjnius` build fails (`JAVA_HOME`) | no wheel for the platform | install JDK 11+ and set `JAVA_HOME`; LogAn's code does not import jnius, it is only a dependency |
-| PyTorch error at step 3 of the run | torch missing | `uv pip install torch` (CPU index above) |
+| PyTorch error at step 3 of the run | torch missing | install the CPU build of torch into the LogAn venv |
 | Wrapper: "offline mode and the model cache is empty" | cold cache | one warm-up run with `LOGAN_OFFLINE=0` on a non-sensitive file |
 | Model download hangs or fails | no access to huggingface.co | proxy / `HF_ENDPOINT` mirror / copy a cache from another machine, or `--model-type custom` |
 | Local install fails at step 0 (`Preparing output directory`) with a download error | DuckDB-WASM is fetched from cdn.jsdelivr.net while preparing the output | allow the CDN or copy `~/.cache/logan/duckdb-wasm/`; the image already contains it |

@@ -69,7 +69,7 @@ Everything runs locally. The scripts send no telemetry.
   It writes nothing and makes no network calls.
 - `tag_tool.py` reads log files and a tag config and prints coverage. It writes nothing and makes no network calls.
 - `check_env.sh` is read-only:
-  - it inspects local tools, images, caches and agent MCP configs (`~/.claude.json`, `~/.codex/config.toml`);
+  - it inspects local tools, images and caches; it does not read agent configuration files or credentials;
   - it sends plain HTTPS requests, with no data, to huggingface.co, cdn.jsdelivr.net, ghcr.io, github.com
     and download.pytorch.org to report reachability. Set `LOGAN_CHECK_NETWORK=0` to skip them.
 - The skills tell the agent to treat log content as untrusted data, to read only small samples, and to quote

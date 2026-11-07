@@ -86,27 +86,18 @@ else
   miss "curl not found, network check skipped"
 fi
 
-echo "== MCP registration"
-if [ -f "$HOME/.claude.json" ] && grep -q '"logan"' "$HOME/.claude.json" 2>/dev/null; then ok "Claude Code: server 'logan' found in ~/.claude.json"; else miss "Claude Code: 'logan' not registered (or registered per project)"; fi
-if [ -f "$HOME/.codex/config.toml" ] && grep -q 'mcp_servers.logan' "$HOME/.codex/config.toml" 2>/dev/null; then
-  ok "Codex: [mcp_servers.logan] found"
-  grep -q 'tool_timeout_sec' "$HOME/.codex/config.toml" || warn "Codex: tool_timeout_sec not set (default 60 s is too short for analyze_logs)"
-else
-  miss "Codex: 'logan' not registered"
-fi
-
 echo "== Recommendation"
 if [ -n "$HAS_IMAGE" ]; then
   echo "  The LogAn image is present: use logan-analyze/scripts/logan_docker.sh (option A)."
-  [ -n "$HAS_MCP" ] && echo "  logan-mcp is also installed: register $MCP_BIN in your agent if you want MCP tools."
+  [ -n "$HAS_MCP" ] && echo "  logan-mcp is also installed: register $MCP_BIN in your agent if you want MCP tools (logan-setup, step 3)."
 elif [ -n "$HAS_MCP" ]; then
-  echo "  LogAn with MCP is installed. Register $MCP_BIN in your agent (step 3) if not done yet."
+  echo "  LogAn with MCP is installed. Register $MCP_BIN in your agent (logan-setup, step 3) if not done yet."
 elif [ -n "$HAS_LOGAN" ]; then
-  echo "  CLI present without MCP. For MCP: cd $LOGAN_DIR && uv pip install -e '.[mcp]'"
+  echo "  CLI present without MCP: reinstall LogAn with the 'mcp' extra (logan-setup, option B) if MCP tools are wanted."
 elif [ -n "$HAS_CONTAINER" ]; then
   echo "  A container runtime is available: pull the image (option A), the simplest route."
 elif [ -n "$HAS_RUST" ] && have uv; then
-  echo "  Everything for a local install is present: option B (CLI and MCP)."
+  echo "  Tools for a local install are present: option B (CLI and MCP), after the user approves it."
 else
   echo "  Missing tools: install podman/docker (option A) or uv + Rust (option B). Ask the user which."
 fi

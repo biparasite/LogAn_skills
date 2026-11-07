@@ -2,7 +2,7 @@
   "name": "logan-skills",
   "displayName": "LogAn Skills (unofficial)",
   "icon": "./.claude-plugin/icon.png",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent skills for log analysis with LogAn (IBM Research / Red Hat Log Analyzer): run it from Docker offline, summarize golden signals, fault categories and input coverage, drill into templates, find the root cause, and build custom tag configs. Unofficial; not affiliated with IBM or Red Hat.",
   "author": {
     "name": "biparasite",
