@@ -1,0 +1,152 @@
+{
+  "tags": [
+    {
+      "name": "Auth",
+      "keywords": [
+        "sshd",
+        "sudo",
+        "pam",
+        "login",
+        "polkit",
+        "krb5",
+        "sssd",
+        "auth"
+      ],
+      "patterns": [
+        "authentication (failure|failed)",
+        "failed password",
+        "invalid user",
+        "session (opened|closed)",
+        "permission denied \\(publickey",
+        "check pass; user unknown"
+      ]
+    },
+    {
+      "name": "Storage",
+      "keywords": [
+        "ext4",
+        "xfs",
+        "btrfs",
+        "nvme",
+        "smartd",
+        "multipathd",
+        "iscsid",
+        "lvm"
+      ],
+      "patterns": [
+        "i/o error",
+        "(ext4|xfs)-fs (error|warning)",
+        "no space left on device",
+        "read-only file system",
+        "\\bblk_update_request\\b"
+      ]
+    },
+    {
+      "name": "Kernel/Memory",
+      "keywords": [
+        "oom",
+        "kdump"
+      ],
+      "patterns": [
+        "\\bkernel:",
+        "out of memory",
+        "oom-?kill",
+        "segfault",
+        "kernel panic",
+        "call trace",
+        "soft lockup|hard lockup"
+      ]
+    },
+    {
+      "name": "Network",
+      "keywords": [
+        "networkmanager",
+        "dhclient",
+        "systemd-networkd",
+        "named",
+        "dnsmasq",
+        "chronyd",
+        "ntpd",
+        "firewalld"
+      ],
+      "patterns": [
+        "connection (refused|reset|timed out)",
+        "no route to host",
+        "network is unreachable",
+        "name or service not known",
+        "temporary failure in name resolution",
+        "tls handshake"
+      ]
+    },
+    {
+      "name": "Containers",
+      "keywords": [
+        "kubelet",
+        "containerd",
+        "dockerd",
+        "crio",
+        "podman",
+        "kube-"
+      ],
+      "patterns": [
+        "back-?off restarting",
+        "crashloopbackoff",
+        "imagepullbackoff",
+        "liveness probe failed",
+        "readiness probe failed",
+        "evict"
+      ]
+    },
+    {
+      "name": "Database",
+      "keywords": [
+        "postgres",
+        "mysqld",
+        "mariadb",
+        "mongod",
+        "redis",
+        "etcd"
+      ],
+      "patterns": [
+        "deadlock",
+        "too many connections",
+        "connection pool",
+        "replication (lag|error)",
+        "slow query"
+      ]
+    },
+    {
+      "name": "Web",
+      "keywords": [
+        "nginx",
+        "httpd",
+        "apache",
+        "haproxy",
+        "envoy",
+        "traefik"
+      ],
+      "patterns": [
+        "\"(GET|POST|PUT|DELETE|PATCH|HEAD) /\\S* HTTP/",
+        "upstream (timed out|prematurely closed)",
+        "\" 5\\d\\d \\d+ "
+      ]
+    },
+    {
+      "name": "Systemd/Services",
+      "keywords": [
+        "systemd",
+        "cron",
+        "crond",
+        "anacron",
+        "rsyslogd",
+        "journald"
+      ],
+      "patterns": [
+        "(started|stopped|starting|stopping) .*\\.service",
+        "main process exited",
+        "failed with result"
+      ]
+    }
+  ],
+  "default_tag": "Other"
+}

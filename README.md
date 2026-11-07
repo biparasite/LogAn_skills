@@ -14,6 +14,13 @@ it with evidence.
 | [`logan-tags`](skills/logan-tags/SKILL.md) | Build and test `--tag-config` rules that group templates by component |
 | [`logan-setup`](skills/logan-setup/SKILL.md) | Install or check LogAn (container or local), warm the model cache, connect the `logan-mcp` server |
 
+## Editions
+
+- **Full edition** (this repository root): the skills plus helper scripts (a Docker wrapper, a report generator,
+  a tag tester and an environment check). Installed from this repository's marketplace or with `npx skills`.
+- **Directory edition** ([`directory-edition/`](directory-edition/)): the same skills as instructions only,
+  without bundled scripts, as published in Claude's plugin directory.
+
 ## Requirements
 
 - Docker or Podman with the LogAn image: `docker pull ghcr.io/log-analyzer/logan:latest`
