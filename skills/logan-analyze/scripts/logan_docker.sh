@@ -167,8 +167,9 @@ cmd_analyze() {
     *) die "LOGAN_OFFLINE must be 0 or 1" ;;
   esac
   if [ -z "$out" ]; then
-    mkdir -p -m 700 -- "$PWD/logan-runs" || die "cannot create $PWD/logan-runs"
-    out="$PWD/logan-runs/$(date +%Y%m%d_%H%M%S)-$$"
+    local runs; runs="$(pwd)/logan-runs"   # default: ./logan-runs under the current directory
+    mkdir -p -m 700 -- "$runs" || die "cannot create $runs"
+    out="$runs/$(date +%Y%m%d_%H%M%S)-$$"
   fi
   [ ! -e "$out" ] && [ ! -L "$out" ] || die "output must be a new path (LogAn may delete or overwrite files in it): $out"
   mkdir -p -m 700 -- "$(dirname "$out")" || die "cannot create the output parent"
