@@ -79,6 +79,10 @@ Everything runs locally. The scripts send no telemetry.
 Checked against LogAn `main` at commit `70d4975` (2026-07-30, package version 0.0.1) and the
 `ghcr.io/log-analyzer/logan` image layout (`/opt/app-root/src/.venv`, UID 1001, GID 0).
 
+## Privacy
+
+The plugin collects no data and sends no log content anywhere; see the [privacy policy](PRIVACY.md).
+
 ## License and notices
 
 Apache License 2.0, see [LICENSE](LICENSE). `skills/logan-tags/scripts/tag_tool.py` reimplements the token
