@@ -48,16 +48,15 @@ default and runs the container as your user. The model is not part of the image.
 network access on a non-sensitive file, then verify an offline run:
 
 ```bash
-w=<skill-dir>/../logan-analyze/scripts/logan_docker.sh
-LOGAN_OFFLINE=0 bash "$w" analyze -f /path/to/sample.log -o /tmp/logan-warmup-$$
-bash "$w" analyze -f /path/to/sample.log -o /tmp/logan-offline-$$      # must succeed with --network none
+LOGAN_OFFLINE=0 bash <skill-dir>/../logan-analyze/scripts/logan_docker.sh analyze -f /path/to/sample.log -o /tmp/logan-warmup
+bash <skill-dir>/../logan-analyze/scripts/logan_docker.sh analyze -f /path/to/sample.log -o /tmp/logan-offline   # must succeed with --network none
 ```
 
 Pitfalls:
 - `HF_HOME=/tmp/hf_cache` inside the image. Without a volume there (the wrapper mounts `~/.cache/logan-hf`)
   the model is downloaded again on every `--rm` run.
 - The image runs as UID 1001, GID 0 and cannot write to your directories. Do not `chmod a+rwx`; run as your
-  UID: docker `--user "$(id -u):$(id -g)" --group-add 0`, rootless podman `--userns=keep-id`. The UBI image
+  UID: docker `--user <uid>:<gid> --group-add 0` (your `id -u` and `id -g`), rootless podman `--userns=keep-id`. The UBI image
   supports arbitrary UIDs (its app directory is accessible to group 0). As root the wrapper keeps the image
   user and creates output and cache with mode 770, group 0.
 - `:z` is needed on SELinux hosts (Fedora/RHEL); the wrapper adds it automatically.
