@@ -389,7 +389,8 @@ def render_summary_md(s):
              (f" (after preprocessing: {c['records_after_preprocessing']})" if c["records_after_preprocessing"] is not None else "") +
              "; LogAn appends lines without a timestamp to the previous entry")
     if c["raw_lines_skipped"]:
-        o.append("- Usual reasons: blank lines; lines where at least 65% of tokens are numbers; lines outside --time-range; "
+        o.append("- Usual reasons: blank lines; lines where digits are at least 65% of letters and digits (timestamp excluded); "
+                 "lines outside --time-range; "
                  "lines before the first timestamp of a file. Dropped lines are not analyzed, so errors in them are invisible here.")
     if c["lines_without_timestamp"]:
         o.append(f"- Lines without a timestamp: {c['lines_without_timestamp']} (see developer_debug_files/none_logs.log)")

@@ -46,6 +46,8 @@ Check that LogAn will pick the files up:
 - **Files passed explicitly** (`-f file`) are processed whatever the extension, except `.xml`, `.tsv`,
   `.csv` and `.xlsx`, which LogAn ignores.
 - Archives (`.gz`, `.zip`, `.tar.*`) are extracted automatically; the same name rules apply inside.
+- LogAn is for **text logs**. Binary exports (NetFlow/IPFIX, pcap) are not readable, and records that are
+  almost all numbers (flow or metric dumps) are dropped in preprocessing; use a flow or metrics tool for those.
 
 ## Step 2. Run the analysis
 
@@ -111,9 +113,9 @@ bash <skill-dir>/scripts/logan_docker.sh report OUTPUT_DIR --format json     # s
 python3 <skill-dir>/scripts/logan_report.py OUTPUT_DIR   # without Docker: needs pyarrow, e.g. a LogAn venv
 ```
 
-**Read "Input coverage" first** (`coverage` in JSON). LogAn silently drops blank lines, lines where at least
-65% of tokens are numbers, lines outside `--time-range`, lines before the first timestamp of a file, and
-whole files with unsuitable names (`files_ignored`). Errors in dropped lines are invisible to the summary.
+**Read "Input coverage" first** (`coverage` in JSON). LogAn silently drops blank lines, lines in which digits
+make up at least 65% of all letters and digits (the timestamp is not counted), lines outside `--time-range`,
+lines before the first timestamp of a file, and whole files with unsuitable names (`files_ignored`). Errors in dropped lines are invisible to the summary.
 If more than a few percent is dropped or files were ignored, tell the user and, if needed, rerun with
 `--process-all-files`, `-t all-data` or explicit `-f`, and `grep` the source files for what matters.
 
